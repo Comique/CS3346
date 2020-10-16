@@ -85,8 +85,31 @@ def depthFirstSearch(problem):
     print("Start:", problem.getStartState())
     print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
+
+    Start: (5, 5)
+    Is the start a goal? False
+    Start's successors: [((5, 4), 'South', 1), ((4, 5), 'West', 1)]
     """
     "*** YOUR CODE HERE ***"
+    fringe = util.Stack()
+    startState = problem.getStartState()
+
+    fringe.push((startState, []))
+    explored = []
+
+    while not fringe.isEmpty():
+        (state, action) = fringe.pop()
+
+        for (loc, direction, cost) in problem.getSuccessors(state):
+            "ignore if the location has been explored before"
+            if loc not in explored:
+                "check if the location is the goal state, return if it is"
+                if problem.isGoalState(loc):
+                    actions = action + [direction]
+                    return actions
+                explored.append(loc)
+                fringe.push((loc, action + [direction]))
+
     util.raiseNotDefined()
 
 def breadthFirstSearch(problem):
