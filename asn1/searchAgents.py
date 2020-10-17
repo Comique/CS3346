@@ -295,14 +295,20 @@ class CornersProblem(search.SearchProblem):
         space)
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        return (self.startingPosition, [])
 
     def isGoalState(self, state):
         """
         Returns whether this search state is a goal state of the problem.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        corner = state[0]
+        visited = state[1]
+        if corner in self.corners:
+            if corner not in visited:
+                visited.append(corner)
+            return len(visited) == 4
+        return False
 
     def getSuccessors(self, state):
         """
@@ -325,6 +331,18 @@ class CornersProblem(search.SearchProblem):
             #   hitsWall = self.walls[nextx][nexty]
 
             "*** YOUR CODE HERE ***"
+            x,y = state[0]
+            dx, dy = Actions.directionToVector(action)
+            nextx, nexty = int(x + dx), int(y + dy)
+            hitsWall = self.walls[nextx][nexty]
+            visited = state[1]
+            
+            if not hitsWall:
+                nextState = (nextx, nexty)
+                if nextState in self.corners:
+                    if nextState not in visited:
+                        visited.append(nextState)
+                        successors.append((nextState, visited), action, 1)
 
         self._expanded += 1 # DO NOT CHANGE
         return successors
@@ -360,7 +378,23 @@ def cornersHeuristic(state, problem):
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
 
     "*** YOUR CODE HERE ***"
-    return 0 # Default to trivial solution
+    heuristic = 0
+    current = state[0]
+    visited = state[1]
+    cornersLeft = []
+
+    for corner in corners:
+        if corner not in visited:
+            cornersLeft.append(corner)
+    while len(cornersLeft) > 0:
+        cost, corner = min([(util.manhattanDistance(current, corner), corner) for corner in cornersLeft])
+        heuristic += cost
+        current = corner
+        cornersLeft.remove(corner)
+
+    return heuristic
+
+    # return 0 # Default to trivial solution
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
