@@ -333,18 +333,19 @@ class CornersProblem(search.SearchProblem):
             #   hitsWall = self.walls[nextx][nexty]
 
             "*** YOUR CODE HERE ***"
-            x,y = state[0]
+            x, y = state[0]
+            visited = state[1]
             dx, dy = Actions.directionToVector(action)
             nextx, nexty = int(x + dx), int(y + dy)
             hitsWall = self.walls[nextx][nexty]
-            visited = state[1]
             
             if not hitsWall:
+                succVisited = list(visited)
                 nextState = (nextx, nexty)
                 if nextState in self.corners:
-                    if nextState not in visited:
-                        visited.append(nextState)
-                successors.append(((nextState, visited), action, 1))
+                    if nextState not in succVisited:
+                        succVisited.append(nextState)
+                successors.append(((nextState, succVisited), action, 1))
 
         self._expanded += 1 # DO NOT CHANGE
         return successors
