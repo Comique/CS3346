@@ -304,6 +304,10 @@ class CornersProblem(search.SearchProblem):
         Returns whether this search state is a goal state of the problem.
         """
         "*** YOUR CODE HERE ***"
+        """
+        Check if visited corners = 4, return true if true, false if not
+        Add each corner to visited corners list and check total
+        """
         pos = state[0]
         visited = state[1]
         if pos in self.corners:
@@ -333,18 +337,22 @@ class CornersProblem(search.SearchProblem):
             #   hitsWall = self.walls[nextx][nexty]
 
             "*** YOUR CODE HERE ***"
+            "Variables"
             x, y = state[0]
             visited = state[1]
             dx, dy = Actions.directionToVector(action)
             nextx, nexty = int(x + dx), int(y + dy)
             hitsWall = self.walls[nextx][nexty]
             
+            "If not hit wall"
             if not hitsWall:
                 succVisited = list(visited)
                 nextState = (nextx, nexty)
+                "check if the next state is a corner and append if not in list"
                 if nextState in self.corners:
                     if nextState not in succVisited:
                         succVisited.append(nextState)
+                "append to successors"
                 successors.append(((nextState, succVisited), action, 1))
 
         self._expanded += 1 # DO NOT CHANGE
@@ -386,14 +394,19 @@ def cornersHeuristic(state, problem):
     visited = state[1]
     cornersLeft = []
 
+    "for each corner, check if it was visited, if not, add to corners left to visit list"
     for corner in corners:
         if corner not in visited:
             cornersLeft.append(corner)
+    "while there are corners left to visit, calculate distance to next corner"
+    "add cost to heuristic for return"
+    "remove corner from list as it's been calculated"
     while len(cornersLeft) > 0:
-        cost, corner = min([(util.manhattanDistance(current, corner), corner) for corner in cornersLeft])
-        heuristic += cost
-        current = corner
-        cornersLeft.remove(corner)
+        for corner in cornersLeft:
+            cost, corner = min([(util.manhattanDistance(current, corner), corner)])
+            heuristic += cost
+            current = corner
+            cornersLeft.remove(corner)
 
     return heuristic
 
