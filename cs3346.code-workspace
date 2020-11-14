@@ -2,6 +2,9 @@
 	"folders": [
 		{
 			"path": "asn1"
+		},
+		{
+			"path": "asn2"
 		}
 	],
 	"settings": {}
