@@ -74,7 +74,22 @@ class ReflexAgent(Agent):
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
         "*** YOUR CODE HERE ***"
-        return successorGameState.getScore()
+        newGhostPositions = successorGameState.getGhostPositions()
+
+        food = 1
+        for i in range(len(newFood.asList())):
+          if (len(newFood.asList()) == 0) :
+            food = 1
+          else:
+            food = 1/min([util.manhattanDistance(newPos, newFood.asList()[i])])
+
+        ghost = 0
+        for i in range(len(newGhostPositions)):
+          closestGhostDistance = min([util.manhattanDistance(newPos, newGhostPositions[i])])
+        if closestGhostDistance < 2:
+          ghost = -200
+
+        return successorGameState.getScore() - currentGameState.getScore() + food + ghost
 
 
 def scoreEvaluationFunction(currentGameState):
@@ -132,7 +147,30 @@ class MinimaxAgent(MultiAgentSearchAgent):
             Returns the total number of agents in the game
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        def maximize(state, depth, index):
+          depth -= 1
+          if state.isLose() or state.isWin() or depth < 0:
+            return (self.evaluationFunction(state), None)
+          value = float('-inf')
+          for action in state.getLegalActions(index):
+            if minimize(state.generateSuccessor(index, action), depth, index + 1)[0] > value:
+              value, maxAction = minimize(state.generateSuccessor(index, action), depth, index + 1)[0], action
+          return (value, maxAction)
+
+        def minimize(state, depth, index):
+          if state.isLose() or state.isWin() or depth < 0:
+            return (self.evaluationFunction(state), None)
+          value = float('inf')
+          if index < state.getNumAgents() - 1:
+            evalfunc, nextAgent = (minimize, index + 1)
+          else:
+            evalfunc, nextAgent = (maximize, 0)
+          for action in state.getLegalActions(index):
+            if evalfunc(state.generateSuccessor(index,action), depth, nextAgent)[0] < value:
+              value, minAction = evalfunc(state.generateSuccessor(index, action), depth, nextAgent)[0], action
+          return (value, minAction)
+
+        return maximize(gameState, self.depth, 0)[1]
 
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
