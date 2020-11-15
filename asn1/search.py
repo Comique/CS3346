@@ -72,6 +72,9 @@ def tinyMazeSearch(problem):
     w = Directions.WEST
     return  [s, s, w, s, w, w, s, w]
 
+
+
+
 def depthFirstSearch(problem):
     """
     Search the deepest nodes in the search tree first.
@@ -85,79 +88,86 @@ def depthFirstSearch(problem):
     print("Start:", problem.getStartState())
     print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
-
-    Start: (5, 5)
-    Is the start a goal? False
-    Start's successors: [((5, 4), 'South', 1), ((4, 5), 'West', 1)]
     """
-    "*** YOUR CODE HERE ***"
-    "setup fringe as stack"
-    fringe = util.Stack()
-    fringe.push((problem.getStartState(), []))
-    explored = []
 
-    "while fringe is not empty"
-    while not fringe.isEmpty():
-        (state, action) = fringe.pop()
-        "pop fringe and take for looping through successors"
-        for n in problem.getSuccessors(state):
-            "ignore if the location has been explored before"
-            if n[0] not in explored:
-                "check if the location is the goal state, return if it is"
-                if problem.isGoalState(n[0]):
-                    return action + [n[1]]
-                "if not, add to explored list, then push to fringe"
-                explored.append(n[0])
-                fringe.push((n[0], action + [n[1]]))
+    result = []
+    visited = []
 
-    #util.raiseNotDefined()
+    stack = util.Stack()
+    start = (problem.getStartState(), [])
+    stack.push(start)
+
+    while not stack.isEmpty():
+        (state, path) = stack.pop()
+        if problem.isGoalState(state):
+            result = path
+            break
+
+        if state not in visited:
+            visited.append(state)
+            for w in problem.getSuccessors(state):
+                newPath = path + [w[1]]
+                newState = (w[0], newPath)
+                stack.push(newState)
+
+    return result
+    util.raiseNotDefined()
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
-    "*** YOUR CODE HERE ***"
-    "setup fringe as queue"
-    fringe = util.Queue()
-    fringe.push((problem.getStartState(), []))
-    explored = []
 
-    "while fringe is not empty"
-    while not fringe.isEmpty():
-        (state, action) = fringe.pop()
-        "pop fringe and take for looping through successors"
-        for n in problem.getSuccessors(state):
-            "ignore if the location has been explored before"
-            if n[0] not in explored:
-                "check if the location is the goal state, return if it is"
-                if problem.isGoalState(n[0]):
-                    return action + [n[1]]
-                "if not, add to explored list, then push to fringe"
-                fringe.push((n[0], action + [n[1]]))
-                explored.append(n[0])
+    result = []
+    visited = []
 
-    #util.raiseNotDefined()
+    queue = util.Queue()
+    start = (problem.getStartState(), [])
+    queue.push(start)
+
+    while not queue.isEmpty():
+        (node, path) = queue.pop()
+        if problem.isGoalState(node):
+            result = path
+            break
+
+        if node not in visited:
+            visited.append(node)
+            for w in problem.getSuccessors(node):
+                newPath = path + [w[1]]
+                newNode = (w[0], newPath)
+                queue.push(newNode)
+
+    return result
+    util.raiseNotDefined()
+
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
+    result = []
+    visited = []
+
+    p_queue = util.PriorityQueue()
+    start = (problem.getStartState(), [], 0)
+    p_queue.update(start,0)
+
+    while not p_queue.isEmpty():
+        (node, path, cost) = p_queue.pop()
+        if problem.isGoalState(node):
+            result = path
+            break
+
+        if node not in visited:
+            visited.append(node)
+            for w in problem.getSuccessors(node):
+                newPath = path + [w[1]]
+                newCost = cost + w[2]
+                newNode = (w[0], newPath, newCost)
+                p_queue.update(newNode, newCost)
+
+
+
+    return result
     "*** YOUR CODE HERE ***"
-    "setup fringe as priority queue"
-    fringe = util.PriorityQueue()
-    fringe.push((problem.getStartState(), []), 0)
-    explored = []
-
-    "while fringe is not empty"
-    while not fringe.isEmpty():
-        (state, action) = fringe.pop()
-        "pop fringe and take for looping through successors"
-        "check if is goal state to return"
-        if problem.isGoalState(state):
-            return action
-        for (loc, direction, cost) in problem.getSuccessors(state):
-            "if the state of the successor is not explored, push to fringe and append to explored list"
-            if loc not in explored:
-                fringe.push((loc, action + [direction]), problem.getCostOfActions(action + [direction]))
-                explored.append(state)
-
-    #util.raiseNotDefined()
+    util.raiseNotDefined()
 
 def nullHeuristic(state, problem=None):
     """
@@ -168,26 +178,31 @@ def nullHeuristic(state, problem=None):
 
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
-    "*** YOUR CODE HERE ***"
-    "setup fringe as priority queue"
-    fringe = util.PriorityQueue()
-    fringe.push((problem.getStartState(), []), [])
-    explored = []
 
-    "while fringe is not empty"
-    while not fringe.isEmpty():
-        (state, action) = fringe.pop()
-        "pop fringe and take for looping through successors, return if it's goal state"
-        if problem.isGoalState(state):
-            return action
-        for (loc, direction, cost) in problem.getSuccessors(state):
-            "if the state hasn't been explored, push to fringe and append to explored list"
-            if loc not in explored:
-                fringe.push((loc, action + [direction]), (problem.getCostOfActions(action + [direction]) + heuristic(loc, problem)))
-                explored.append(state)
+    result = []
+    visited = []
 
-    #util.raiseNotDefined()
+    p_queue = util.PriorityQueue()
+    start = (problem.getStartState(), [], 0)
+    p_queue.update(start, 0)
 
+    while not p_queue.isEmpty():
+        (node, path, cost) = p_queue.pop()
+        if problem.isGoalState(node):
+            result = path
+            break
+
+        if node not in visited:
+            visited.append(node)
+            for w in problem.getSuccessors(node):
+                newPath = path + [w[1]]
+                newCost = cost + w[2]
+                newNode = (w[0], newPath, newCost)
+                p_queue.update(newNode, newCost+heuristic(w[0],problem))
+
+    return result
+
+    util.raiseNotDefined()
 
 # Abbreviations
 bfs = breadthFirstSearch
